@@ -63,7 +63,7 @@ source ~/.bashrc
 
 vtmapping supports two mapping software options (bowtie2 and minimap2), with minimap2 used by default. Detailed usage information can be viewed using the -h or --help flags `python vtmapping.py -h`.
 
-Do not run this on the login node. Submit it as an sbatch job on the HPC using `sbatch run_vtmapping.sh`. Make sure to update the --mail-user field before submitting the job. A dry-run can be performed to check which rules will be executed and which files will be produced. 
+Do not run this on the login node. Submit it as an sbatch job. See `run_vtmapping.sh` for an example, or check the HTCF usage guide here (https://github.com/xwu35/baldridge_lab/blob/main/HTCF.md). Make sure to update the --mail-user field before submitting the job. A dry-run can be performed to check which rules will be executed and which files will be produced. 
 
 If you did not export the path as shown above, you will need to specify the full path to vtmapping.py
 
