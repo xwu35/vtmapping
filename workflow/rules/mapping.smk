@@ -453,13 +453,12 @@ elif config["mapper"]=="minimap2":
                 {input.R1} {input.R2} > {output.sam} 2> {log}
             """
 
-rule host_separate_mapped_and_umapped_reads:
-    """separate mapped and umapped reads"""
+rule host_sort_bam:
+    """convert sam to bam and sort by coordinates"""
     input:
         sam=os.path.join(dir["output"]["reads_processing"], "host_filtered", "{sample}.sam")
     output:
-        mapped=temp(os.path.join(dir["output"]["reads_processing"], "host_filtered", "{sample}_mapped_sorted.bam")),
-        unmapped=temp(os.path.join(dir["output"]["reads_processing"], "host_filtered", "{sample}_unmapped_sorted.bam"))
+        bam=temp(os.path.join(dir["output"]["reads_processing"], "host_filtered", "{sample}_sorted.bam"))
     threads:
         config["resources"]["small_cpu"]
     resources:
@@ -468,17 +467,15 @@ rule host_separate_mapped_and_umapped_reads:
         os.path.join(dir["env"], "coverm.yml")
     shell:
         """
-        # separate mapped and unmapped reads and sort the bam file by reference coordinates 
-        samtools view -bS -F 4 {input.sam} | samtools sort - -o {output.mapped} -@ {threads} -T /tmp 
-        samtools view -bS -f 4 {input.sam} | samtools sort - -o {output.unmapped} -@ {threads} -T /tmp 
+        samtools view -bS {input.sam} | samtools sort - -o {output.bam} -@ {threads} -T /tmp 
         """
 
 rule host_filter_mapped:
-    """remove mapped reads with >= the given identity"""
+    """keep reads which are unmapped or align below the given thresholds"""
     input:
-        mapped=os.path.join(dir["output"]["reads_processing"], "host_filtered", "{sample}_mapped_sorted.bam"),
+        bam=temp(os.path.join(dir["output"]["reads_processing"], "host_filtered", "{sample}_sorted.bam"))
     output:
-        filtered=temp(os.path.join(dir["output"]["reads_processing"], "host_filtered", "{sample}_mapped_sorted_filtered.bam"))
+        kept=temp(os.path.join(dir["output"]["reads_processing"], "host_filtered", "{sample}_kept.bam"))
     threads:
         config["resources"]["med_cpu"]
     params:
@@ -487,33 +484,11 @@ rule host_filter_mapped:
         os.path.join(dir["env"], "coverm.yml")
     shell:
         """                    
-        coverm filter -b {input.mapped} \
-            -o {output.filtered} \
+        coverm filter -b {input.bam} \
+            -o {output.kept} \
             --inverse \
             --min-read-percent-identity {params.pid} \
             --threads {threads}
-        """
-
-rule host_merge_bam_files:
-    """merge unmapped and mapped filtered bam files"""
-    input:
-        unmapped=os.path.join(dir["output"]["reads_processing"], "host_filtered", "{sample}_unmapped_sorted.bam"),
-        mapped_filtered=os.path.join(dir["output"]["reads_processing"], "host_filtered", "{sample}_mapped_sorted_filtered.bam")
-    output:
-        kept=os.path.join(dir["output"]["reads_processing"], "host_filtered", "{sample}_kept.bam")
-    threads:
-        config["resources"]["small_cpu"]
-    resources:
-        mem_mb=config["resources"]["small_mem"]
-    conda:
-        os.path.join(dir["env"], "coverm.yml")
-    shell:
-        """
-        samtools merge \
-            -o {output.kept} \
-            -@ {threads} \
-            {input.unmapped} \
-            {input.mapped_filtered} 
         """
 
 rule count_kept_reads:

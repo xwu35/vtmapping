@@ -112,5 +112,5 @@ vtmapping runs mapping by default.
 
 ## Output description
 
-- **Quality control results**: output_dir/reads_processing/fastqc
+- **Quality control results**: output_dir/fastqc
 - **Read counts**: output_dir/reads_statistics/{combined_read_counts.txt,reads_composition_barplot.svg}
