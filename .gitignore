@@ -1,0 +1,7 @@
+.DS_Store
+db/.DS_Store
+db/Fp22_genome/.DS_Store
+test_data/.DS_Store
+test_data/sequences/.DS_Store
+workflow/.DS_Store
+workflow/**/.DS_Store
