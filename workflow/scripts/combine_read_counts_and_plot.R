@@ -55,8 +55,8 @@ p_composition_reads <- combined_table %>%
 
 # select few columns to write out
 output_table <- combined_table %>%
-  mutate(pct_unmapped = unmapped / total_reads_after_human,
-         pct_mapped = mapped / total_reads_after_human)
+  mutate(pct_unmapped = (unmapped/total_reads_after_human)*100,
+         pct_mapped = (mapped/total_reads_after_human)*100)
   
 # save table
 write.table(output_table, snakemake@output$table,
