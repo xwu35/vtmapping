@@ -23,8 +23,8 @@ rule fastqc_raw_reads:
         R1=os.path.join(dir["output"]["reads_processing"], "renamed_raw_reads", "{sample}_R1.fastq.gz"),
         R2=os.path.join(dir["output"]["reads_processing"], "renamed_raw_reads", "{sample}_R2.fastq.gz")
     output:
-        R1_zip=os.path.join(dir["output"]["reads_processing"], "fastqc", "raw_reads", "{sample}_R1_fastqc.zip"),
-        R2_zip=os.path.join(dir["output"]["reads_processing"], "fastqc", "raw_reads", "{sample}_R2_fastqc.zip")
+        R1_zip=os.path.join(dir["output"]["fastqc"], "raw_reads", "{sample}_R1_fastqc.zip"),
+        R2_zip=os.path.join(dir["output"]["fastqc"], "raw_reads", "{sample}_R2_fastqc.zip")
     params:
         dir=lambda w, output: os.path.dirname(output.R1_zip)
     threads:
@@ -42,12 +42,12 @@ rule fastqc_raw_reads:
 rule multiqc_raw_reads:
     """Aggregate fastqc results from raw reads"""
     input:
-        R1_zip=expand(os.path.join(dir["output"]["reads_processing"], "fastqc", "raw_reads", "{sample}_R1_fastqc.zip"), sample=SAMPLE),
-        R2_zip=expand(os.path.join(dir["output"]["reads_processing"], "fastqc", "raw_reads", "{sample}_R2_fastqc.zip"), sample=SAMPLE)
+        R1_zip=expand(os.path.join(dir["output"]["fastqc"], "raw_reads", "{sample}_R1_fastqc.zip"), sample=SAMPLE),
+        R2_zip=expand(os.path.join(dir["output"]["fastqc"], "raw_reads", "{sample}_R2_fastqc.zip"), sample=SAMPLE)
     output:
-        html=os.path.join(dir["output"]["reads_processing"], "fastqc", "multiqc_raw_reads", "multiqc_report.html")
+        html=os.path.join(dir["output"]["fastqc"], "multiqc_raw_reads", "multiqc_report.html")
     params:
-        in_dir=directory(os.path.join(dir["output"]["reads_processing"], "fastqc", "raw_reads")),
+        in_dir=directory(os.path.join(dir["output"]["fastqc"], "raw_reads")),
         out_dir=lambda w, output: os.path.dirname(output.html)
     resources:
         mem_mb=config["resources"]["small_mem"]
@@ -97,8 +97,8 @@ rule fastqc_trimmed_reads:
         R1P=os.path.join(dir["output"]["reads_processing"], "trimmomatic", "{sample}_R1.trimmomatic.fastq.gz"),
         R2P=os.path.join(dir["output"]["reads_processing"], "trimmomatic", "{sample}_R2.trimmomatic.fastq.gz")
     output:
-        R1_zip=os.path.join(dir["output"]["reads_processing"], "fastqc", "after_trimmomatic", "{sample}_R1.trimmomatic_fastqc.zip"),
-        R2_zip=os.path.join(dir["output"]["reads_processing"], "fastqc", "after_trimmomatic", "{sample}_R2.trimmomatic_fastqc.zip")
+        R1_zip=os.path.join(dir["output"]["fastqc"], "after_trimmomatic", "{sample}_R1.trimmomatic_fastqc.zip"),
+        R2_zip=os.path.join(dir["output"]["fastqc"], "after_trimmomatic", "{sample}_R2.trimmomatic_fastqc.zip")
     params:
         dir=lambda w, output: os.path.dirname(output.R1_zip)
     threads:
@@ -116,12 +116,12 @@ rule fastqc_trimmed_reads:
 rule multiqc_trimmed_reads:
     """aggregate fastqc results from trimmed reads after trimmomatic"""
     input:
-        R1_zip=expand(os.path.join(dir["output"]["reads_processing"], "fastqc", "after_trimmomatic", "{sample}_R1.trimmomatic_fastqc.zip"), sample=SAMPLE),
-        R2_zip=expand(os.path.join(dir["output"]["reads_processing"], "fastqc", "after_trimmomatic", "{sample}_R2.trimmomatic_fastqc.zip"), sample=SAMPLE)
+        R1_zip=expand(os.path.join(dir["output"]["fastqc"], "after_trimmomatic", "{sample}_R1.trimmomatic_fastqc.zip"), sample=SAMPLE),
+        R2_zip=expand(os.path.join(dir["output"]["fastqc"], "after_trimmomatic", "{sample}_R2.trimmomatic_fastqc.zip"), sample=SAMPLE)
     output:
-        html=os.path.join(dir["output"]["reads_processing"], "fastqc", "multiqc_after_trimmomatic", "multiqc_report.html")
+        html=os.path.join(dir["output"]["fastqc"], "multiqc_after_trimmomatic", "multiqc_report.html")
     params:
-        in_dir=directory(os.path.join(dir["output"]["reads_processing"], "fastqc", "after_trimmomatic")),
+        in_dir=directory(os.path.join(dir["output"]["fastqc"], "after_trimmomatic")),
         out_dir=lambda w, output: os.path.dirname(output.html)
     resources:
         mem_mb=config["resources"]["small_mem"]
@@ -470,10 +470,10 @@ rule host_sort_bam:
         samtools view -bS {input.sam} | samtools sort - -o {output.bam} -@ {threads} -T /tmp 
         """
 
-rule host_filter_mapped:
+rule host_filter_bam:
     """keep reads which are unmapped or align below the given thresholds"""
     input:
-        bam=temp(os.path.join(dir["output"]["reads_processing"], "host_filtered", "{sample}_sorted.bam"))
+        bam=os.path.join(dir["output"]["reads_processing"], "host_filtered", "{sample}_sorted.bam")
     output:
         kept=temp(os.path.join(dir["output"]["reads_processing"], "host_filtered", "{sample}_kept.bam"))
     threads:
