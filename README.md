@@ -93,7 +93,7 @@ Options:
   --identity INTEGER       Percent of identity to remove reads mapped to the host genome  [default: 97]
   --adapter TEXT           Adapter sequences. By default, the adapters.fna file within `vtmapping/db` is used  [default: ""]
   --mapper TEXT            Mapping software; available options are: minimap2, bowtie2  [default: minimap2]
-  --step TEXT              Steps to run; available options are: fastqc, preprocess  [default: preprocess]
+  --step TEXT              Steps to run; available options are: fastqc, mapping  [default: mapping]
   --test                   test run
   --dryrun                 Check rules to run and files to produce
   --conda_envs TEXT        Directory to store conda environments. By default, the "conda_env" directory within vtmapping is used  [default: ""]
